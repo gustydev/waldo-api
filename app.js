@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const indexRouter = require('./routes/index')
 
 const Character = require('./models/character')
 const Map = require('./models/map');
@@ -12,6 +13,8 @@ const mongoDB = process.env.MONGODB_URI;
 
 main()
 .then(async () => {
+    await Map.deleteMany();
+
     const characters = [
         await Character.findOne({name: 'Waldo'}),
         await Character.findOne({name: 'Odlaw'}),
@@ -28,8 +31,9 @@ main()
         name: 'Dodgeball',
         characters: charArray
     })
-    // const pog = await newMap.save();
-    // console.log(pog)
+
+    const pog = await newMap.save();
+    console.log(pog)
 })
 .catch((err) => console.log(err));
 
@@ -39,6 +43,9 @@ async function main() {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'))
+
+app.use('/', indexRouter)
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {console.log(`App listening on port ${port}`)})

@@ -6,7 +6,7 @@ const CharacterSchema = new Schema({
 })
 
 CharacterSchema.virtual('imageUrl').get(function() {
-    return `./public/images/characters/${this._id}`;
+    return `images/characters/${this._id}`;
 })
 
 module.exports = mongoose.model('Character', CharacterSchema);
