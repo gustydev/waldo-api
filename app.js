@@ -5,6 +5,7 @@ const indexRouter = require('./routes/index')
 
 const Character = require('./models/character')
 const Map = require('./models/map');
+const Game = require('./models/game')
 
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', 'false')
@@ -13,27 +14,13 @@ const mongoDB = process.env.MONGODB_URI;
 
 main()
 .then(async () => {
-    await Map.deleteMany();
+    await Game.deleteMany();
 
-    const characters = [
-        await Character.findOne({name: 'Waldo'}),
-        await Character.findOne({name: 'Odlaw'}),
-        await Character.findOne({name: 'Wizard Oldbeard'})
-    ]
+    const mappy = await Map.findOne();
+    const gayme = new Game({map: mappy})
+    const saved = await gayme.save();
 
-    const charArray = [
-        {character: characters[0], coordinates: {x: 1204, y: 59}},
-        {character: characters[1], coordinates: {x: 1152, y: 235}},
-        {character: characters[2], coordinates: {x: 371, y: 338}},
-    ]
-
-    const newMap = new Map({
-        name: 'Dodgeball',
-        characters: charArray
-    })
-
-    const pog = await newMap.save();
-    console.log(pog)
+    console.log(saved);
 })
 .catch((err) => console.log(err));
 
