@@ -20,10 +20,10 @@ router.get('/:gameId', async function(req, res, next) {
 router.post('/:gameId', async function(req, res, next) {
     const { coordinates, option } = req.body;
 
-    const game = await Game.findById(req.params.gameId)
+    const game = await Game.findById(req.params.gameId);
 
     if (game.finished) {
-        res.json({error: 'Game already finished.'})
+        res.json({msg: 'Game already finished.'})
     }
 
     const map = await Map.findById(game.map._id, 
@@ -31,11 +31,16 @@ router.post('/:gameId', async function(req, res, next) {
     )
     const charCoords = map.characters[0].coordinates;
 
+    const char = game.characters.find(c => c.character.toString() === option);
+
     if ( 
         (coordinates.x >= charCoords.x - 50 && coordinates.x <= charCoords.x + 50) && 
         (coordinates.y >= charCoords.y - 50 && coordinates.y <= charCoords.y + 50) 
     ) {
-        const char = game.characters.find(c => c.character.toString() === option);
+        if (char.found) {
+            res.json({msg: `${char.name} was already found.`})
+        }
+
         char.found = true;
 
         if (!game.characters.find(c => c.found !== true)) {
@@ -43,9 +48,9 @@ router.post('/:gameId', async function(req, res, next) {
         }
 
         game.save();
-        res.json(game);
+        res.json({msg: `Found ${char.name}!`, game});
     } else {
-        res.json({error: 'Invalid position! Please try again'})
+        res.json({msg: `${char.name} is not at that position! Try again`})
     }
 })
 
