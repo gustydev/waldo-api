@@ -19,7 +19,7 @@ GameSchema.pre('save', async function(next) {
     const map = await mongoose.model('Map').findById(this.map).populate('characters.character');
 
     this.characters = map.characters.map(c => ({
-        character: c._id,
+        character: c.character,
         name: c.character.name,
         found: false
     }));
