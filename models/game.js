@@ -8,7 +8,6 @@ const GameSchema = new Schema({
         found: { type: Boolean, default: false }
     }],
     finished: { type: Boolean, default: false}
-    // time??????
 });
 
 GameSchema.pre('save', async function(next) {
