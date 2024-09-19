@@ -10,7 +10,6 @@ router.get('/list', async function(req, res, next) {
 });
 
 router.get('/:mapId', async function(req, res, next) {
-  console.log(req.params)
   const map = await Map.findById(req.params.mapId)
 
   res.json(map)

@@ -8,6 +8,7 @@ const GameSchema = new Schema({
         name: { type: String },
         found: { type: Boolean, default: false }
     }],
+    started: {type: Boolean, default: false},
     finished: { type: Boolean, default: false}
 });
 

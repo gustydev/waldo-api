@@ -17,17 +17,30 @@ router.get('/:gameId', async function(req, res, next) {
     res.json(game);
 })
 
+router.get('/:gameId/start', async function(req, res, next) {
+    // to prevent cheating when refresh page, set variable "started" to true so that player can't reset timer
+    const game = await Game.findById(req.params.gameId);
+    if (game.finished) {
+        return;
+    }
+
+    game.started = true;
+    game.save();
+    res.json({msg: `Game started!`})
+})
+
 router.post('/:gameId', async function(req, res, next) {
-    const { coordinates, option } = req.body;
+    const { coordinates, option, time } = req.body;
 
     const game = await Game.findById(req.params.gameId);
 
     if (game.finished) {
         res.json({msg: 'Game already finished.'})
+        return;
     }
 
     const map = await Map.findById(game.map._id, 
-        { characters: { $elemMatch: { _id: option } } }
+        { characters: { $elemMatch: { character: option } } }
     )
     const charCoords = map.characters[0].coordinates;
 
@@ -39,18 +52,20 @@ router.post('/:gameId', async function(req, res, next) {
     ) {
         if (char.found) {
             res.json({msg: `${char.name} was already found.`})
+            return;
         }
 
         char.found = true;
 
         if (!game.characters.find(c => c.found !== true)) {
             game.finished = true;
+            game.time = time;
         }
 
         game.save();
         res.json({msg: `Found ${char.name}!`, game});
     } else {
-        res.json({msg: `${char.name} is not at that position! Try again`})
+        res.json({msg: `${char.name} is not there! Try again.`})
     }
 })
 

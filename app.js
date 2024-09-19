@@ -18,13 +18,13 @@ const mongoDB = process.env.MONGODB_URI;
 
 main()
 .then(async () => {
-    // await Game.deleteMany();
+    await Game.deleteMany();
 
-    // const mappy = await Map.findOne();
-    // const gayme = new Game({map: mappy})
-    // const saved = await gayme.save();
+    const mappy = await Map.findOne();
+    const gayme = new Game({map: mappy})
+    const saved = await gayme.save();
 
-    // console.log(saved);
+    console.log(saved._id);
 })
 .catch((err) => console.log(err));
 
