@@ -11,7 +11,7 @@ router.get('/list', async function(req, res, next) {
 });
 
 router.get('/:mapId', async function(req, res, next) {
-  const map = await Map.findById(req.params.mapId)
+  const map = await Map.findById(req.params.mapId).populate('leaderboard characters.character')
 
   res.json(map)
 })
@@ -23,7 +23,7 @@ router.post('/:mapId/score', async function (req, res, next) {
   const map = await Map.findById(mapId)
 
   const score = new Score({
-    name: name,
+    name: name.length ? name : undefined, // Set name passed by user, or undefined (default: anonymous)
     time: time,
     date: new Date(),
     map: map

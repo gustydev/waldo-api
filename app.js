@@ -10,6 +10,7 @@ const gameRouter = require('./routes/game')
 const Character = require('./models/character')
 const Map = require('./models/map');
 const Game = require('./models/game')
+const Score = require('./models/score')
 
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', 'false')
@@ -18,7 +19,8 @@ const mongoDB = process.env.MONGODB_URI;
 
 main()
 .then(async () => {
-  await Game.deleteMany();
+  // await Game.deleteMany();
+  // await Score.deleteMany();
 })
 .catch((err) => console.log(err));
 

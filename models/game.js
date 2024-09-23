@@ -5,7 +5,6 @@ const GameSchema = new Schema({
     map: { type: Schema.Types.ObjectId, required: true, ref: 'Map' },
     characters: [{
         character: { type: Schema.Types.ObjectId, ref: 'Character' },
-        name: { type: String },
         found: { type: Boolean, default: false }
     }],
     started: {type: Boolean, default: false},
@@ -20,8 +19,7 @@ GameSchema.pre('save', async function(next) {
     const map = await mongoose.model('Map').findById(this.map).populate('characters.character');
 
     this.characters = map.characters.map(c => ({
-        character: c.character,
-        name: c.character.name,
+        character: c.character._id,
         found: false
     }));
 

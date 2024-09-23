@@ -12,7 +12,7 @@ router.post('/new/:mapId', async function (req, res, next) {
 })
 
 router.get('/:gameId', async function(req, res, next) {
-    const game = await Game.findById(req.params.gameId)
+    const game = await Game.findById(req.params.gameId).populate('characters.character');
 
     res.json(game);
 })
@@ -32,7 +32,7 @@ router.get('/:gameId/start', async function(req, res, next) {
 router.post('/:gameId', async function(req, res, next) {
     const { coordinates, option, time } = req.body;
 
-    const game = await Game.findById(req.params.gameId);
+    const game = await Game.findById(req.params.gameId).populate('characters.character');
 
     if (game.finished) {
         res.json({msg: 'Game already finished.'})
@@ -44,14 +44,14 @@ router.post('/:gameId', async function(req, res, next) {
     )
     const charCoords = map.characters[0].coordinates;
 
-    const char = game.characters.find(c => c.character.toString() === option);
+    const char = game.characters.find(c => c.character._id.toString() === option);
 
     if ( 
         (coordinates.x >= charCoords.x - 50 && coordinates.x <= charCoords.x + 50) && 
         (coordinates.y >= charCoords.y - 50 && coordinates.y <= charCoords.y + 50) 
     ) {
         if (char.found) {
-            res.json({msg: `${char.name} was already found.`})
+            res.json({msg: `${char.character.name} was already found.`})
             return;
         }
 
@@ -63,17 +63,10 @@ router.post('/:gameId', async function(req, res, next) {
         }
 
         game.save();
-        res.json({msg: `Found ${char.name}!`, game});
+        res.json({msg: `Found ${char.character.name}!`, game});
     } else {
-        res.json({msg: `${char.name} is not there! Try again.`})
+        res.json({msg: `${char.character.name} is not there! Try again.`})
     }
-})
-
-router.post('/:gameId/score', async function (req, res, next) {
-    const gameId = req.params.gameId;
-    const { name, time } = req.body;
-
-    console.log(gameId, name, time)
 })
 
 module.exports = router;
