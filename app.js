@@ -18,25 +18,7 @@ const mongoDB = process.env.MONGODB_URI;
 
 main()
 .then(async () => {
-  const wilma = new Character({name: 'Wilma'});
-  console.log(wilma)
-
-  const chars = [
-    {character: await Character.findOne({name: 'Waldo'}), coordinates: {x: 609, y: 222}},
-    {character: await Character.findOne({name: 'Wilma'}), coordinates: {x: 285, y: 335}},
-    {character: await Character.findOne({name: 'Wizard Oldbeard'}), coordinates: {x: 886, y: 175}},
-  ]
-
-  const ocean = new Map({
-    name: 'Ocean',
-    characters: chars
-  })
-
-  // wilma.save();
-  // ocean.save();
-
-  console.log(ocean)
-
+  await Game.deleteMany();
 })
 .catch((err) => console.log(err));
 

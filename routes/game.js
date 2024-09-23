@@ -69,4 +69,11 @@ router.post('/:gameId', async function(req, res, next) {
     }
 })
 
+router.post('/:gameId/score', async function (req, res, next) {
+    const gameId = req.params.gameId;
+    const { name, time } = req.body;
+
+    console.log(gameId, name, time)
+})
+
 module.exports = router;

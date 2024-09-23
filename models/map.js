@@ -10,7 +10,7 @@ const MapSchema = new Schema({
             y: {type: Number, required: true}
         }
     }],
-    leaderboard: [{type: Schema.Types.ObjectId, ref: 'Record'}]
+    leaderboard: [{type: Schema.Types.ObjectId, ref: 'Score'}]
 })
 
 MapSchema.virtual('imageUrl').get(function() {
