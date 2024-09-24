@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const asyncHandler = require('express-async-handler')
 
 const Map = require('../models/map');
 const Score = require('../models/score')
 
-router.get('/list', async function(req, res, next) {
+router.get('/list', asyncHandler(async function(req, res, next) {
   const maps = await Map.find();
 
   res.json(maps);
-});
+}));
 
-router.get('/:mapId', async function(req, res, next) {
+router.get('/:mapId', asyncHandler(async function(req, res, next) {
   const { leaderboard = false} = req.query; // By default don't return leaderboard
 
   const populate = (leaderboard ? 'leaderboard ' : '') + 'characters.character';
@@ -19,9 +20,9 @@ router.get('/:mapId', async function(req, res, next) {
   const map = await Map.findById(req.params.mapId).populate(populate).select(select)
 
   res.json(map)
-})
+}))
 
-router.post('/:mapId/score', async function (req, res, next) {
+router.post('/:mapId/score', asyncHandler(async function (req, res, next) {
   const mapId = req.params.mapId;
   const { name, time } = req.body;
 
@@ -40,6 +41,6 @@ router.post('/:mapId/score', async function (req, res, next) {
   })
 
   res.json({msg: 'Score submitted!', score, map})
-})
+}))
 
 module.exports = router;
