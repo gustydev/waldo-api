@@ -35,7 +35,7 @@ router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
 
     game.started = true;
     game.save();
-    res.json({msg: `Game started!`})
+    res.json({msg: `Game started! Expires after 3 hours, or upon leaving/refreshing the page`})
 }))
 
 router.post('/:gameId', asyncHandler(async function(req, res, next) {
@@ -44,10 +44,6 @@ router.post('/:gameId', asyncHandler(async function(req, res, next) {
     try {
         const game = await Game.findById(req.params.gameId).populate('characters.character');
 
-        if (game.finished) {
-            return res.json({msg: 'Game already finished.'})
-        }
-    
         const map = await Map.findById(game.map._id, 
             { characters: { $elemMatch: { character: option } } }
         )
@@ -59,21 +55,20 @@ router.post('/:gameId', asyncHandler(async function(req, res, next) {
             (coordinates.x >= charCoords.x - 50 && coordinates.x <= charCoords.x + 50) && 
             (coordinates.y >= charCoords.y - 50 && coordinates.y <= charCoords.y + 50) 
         ) {
-            if (char.found) {
-                return res.json({msg: `${char.character.name} was already found.`})
+            if (char.found || game.finished) {
+                return res.json({msg: `${char.character.name} already found, or game finished.`})
             }
     
             char.found = true;
     
             if (!game.characters.find(c => c.found !== true)) {
                 game.finished = true;
-                game.time = time;
             }
     
             game.save();
-            res.json({msg: `Found ${char.character.name}!`, game});
+            res.json({msg: `Found ${char.character.name}! ${game.finished ? 'All characters found!' : ''}`, found: true, game});
         } else {
-            res.json({msg: `${char.character.name} is not there! Try again.`})
+            res.json({msg: `${char.character.name} is not there! Try again.`, found: false})
         }
     } catch (err) {
         return res.status(400).json({msg: 'Game session expired or invalid. Please start a new game.', statusCode: 400})
