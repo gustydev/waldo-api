@@ -15,8 +15,8 @@ router.get('/list', asyncHandler(async function(req, res, next) {
 router.get('/:mapId', asyncHandler(async function(req, res, next) {
   const { leaderboard = false} = req.query; // By default don't return leaderboard
 
-  const populate = (leaderboard ? 'leaderboard ' : '') + 'characters.character';
-  const select = (!leaderboard ? '-leaderboard': '');
+  const populate = (leaderboard === 'true' ? 'leaderboard ' : '') + 'characters.character';
+  const select = (!(leaderboard === 'true') ? '-leaderboard': '');
 
   try {
     const map = await Map.findById(req.params.mapId).populate({

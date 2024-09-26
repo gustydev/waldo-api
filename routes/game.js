@@ -12,7 +12,7 @@ router.post('/new/:mapId', asyncHandler(async function (req, res, next) {
     res.json(newGame)
 }))
 
-router.get('/:gameId', async function(req, res, next) {
+router.get('/:gameId', asyncHandler(async function(req, res, next) {
     try {
         const game = await Game.findById(req.params.gameId)
         .populate({path: 'characters.character', options: {virtuals: true}}); // need to include char images in game as well
@@ -24,7 +24,7 @@ router.get('/:gameId', async function(req, res, next) {
     } catch (err) {
         res.status(404).json({msg: 'Game not found', statusCode: 404})
     }
-})
+}))
 
 router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
     // to prevent cheating when refresh page, set variable "started" to true so that player can't reset timer
@@ -39,7 +39,7 @@ router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
 }))
 
 router.post('/:gameId', asyncHandler(async function(req, res, next) {
-    const { coordinates, option, time } = req.body;
+    const { coordinates, option } = req.body;
 
     try {
         const game = await Game.findById(req.params.gameId).populate('characters.character');
@@ -71,7 +71,7 @@ router.post('/:gameId', asyncHandler(async function(req, res, next) {
             res.json({msg: `${char.character.name} is not there! Try again.`, found: false})
         }
     } catch (err) {
-        return res.status(400).json({msg: 'Game session expired or invalid. Please start a new game.', statusCode: 400})
+        return res.status(400).json({msg: 'Game session expired! Please start a new game.', statusCode: 400})
     }
 }))
 

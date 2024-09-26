@@ -9,7 +9,7 @@ const GameSchema = new Schema({
     }],
     started: {type: Boolean, default: false},
     finished: { type: Boolean, default: false},
-    createdAt: {type: Date, default: Date.now, expires: 10800} // game session is deleted after 3 hours 
+    createdAt: {type: Date, default: Date.now, expires: '3h' } // game session is deleted after 3 hours 
 });
 
 GameSchema.pre('save', async function(next) {
