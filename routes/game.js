@@ -14,22 +14,22 @@ router.post('/new/:mapId', asyncHandler(async function (req, res, next) {
 
 router.get('/:gameId', async function(req, res, next) {
     try {
-        const game = await Game.findById(req.params.gameId).populate('characters.character');
+        const game = await Game.findById(req.params.gameId)
+        .populate({path: 'characters.character', options: {virtuals: true}}); // need to include char images in game as well
         if (game.started) {
             return res.status(400).json({msg: 'Game session expired! Please start a new game.'})
         }
 
         res.json(game);
     } catch (err) {
-        const status = 404
-        res.status(status).json({msg: 'Game not found', statusCode: status})
+        res.status(404).json({msg: 'Game not found', statusCode: 404})
     }
 })
 
 router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
     // to prevent cheating when refresh page, set variable "started" to true so that player can't reset timer
     const game = await Game.findById(req.params.gameId);
-    if (game.finished) {
+    if (game.finished || game.started) {
         return;
     }
 
@@ -41,47 +41,49 @@ router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
 router.post('/:gameId', asyncHandler(async function(req, res, next) {
     const { coordinates, option, time } = req.body;
 
-    const game = await Game.findById(req.params.gameId).populate('characters.character');
+    try {
+        const game = await Game.findById(req.params.gameId).populate('characters.character');
 
-    if (game.finished) {
-        res.json({msg: 'Game already finished.'})
-        return;
-    }
-
-    const map = await Map.findById(game.map._id, 
-        { characters: { $elemMatch: { character: option } } }
-    )
-    const charCoords = map.characters[0].coordinates;
-
-    const char = game.characters.find(c => c.character._id.toString() === option);
-
-    if ( 
-        (coordinates.x >= charCoords.x - 50 && coordinates.x <= charCoords.x + 50) && 
-        (coordinates.y >= charCoords.y - 50 && coordinates.y <= charCoords.y + 50) 
-    ) {
-        if (char.found) {
-            res.json({msg: `${char.character.name} was already found.`})
-            return;
+        if (game.finished) {
+            return res.json({msg: 'Game already finished.'})
         }
-
-        char.found = true;
-
-        if (!game.characters.find(c => c.found !== true)) {
-            game.finished = true;
-            game.time = time;
+    
+        const map = await Map.findById(game.map._id, 
+            { characters: { $elemMatch: { character: option } } }
+        )
+        const charCoords = map.characters[0].coordinates;
+    
+        const char = game.characters.find(c => c.character._id.toString() === option);
+    
+        if ( 
+            (coordinates.x >= charCoords.x - 50 && coordinates.x <= charCoords.x + 50) && 
+            (coordinates.y >= charCoords.y - 50 && coordinates.y <= charCoords.y + 50) 
+        ) {
+            if (char.found) {
+                return res.json({msg: `${char.character.name} was already found.`})
+            }
+    
+            char.found = true;
+    
+            if (!game.characters.find(c => c.found !== true)) {
+                game.finished = true;
+                game.time = time;
+            }
+    
+            game.save();
+            res.json({msg: `Found ${char.character.name}!`, game});
+        } else {
+            res.json({msg: `${char.character.name} is not there! Try again.`})
         }
-
-        game.save();
-        res.json({msg: `Found ${char.character.name}!`, game});
-    } else {
-        res.json({msg: `${char.character.name} is not there! Try again.`})
+    } catch (err) {
+        return res.status(400).json({msg: 'Game session expired or invalid. Please start a new game.', statusCode: 400})
     }
 }))
 
 router.delete('/:gameId', asyncHandler(async function (req, res, next) {
     await Game.findByIdAndDelete(req.params.gameId)
 
-    res.json({msg: `Game session #${req.params.gameId} deleted`});
+    res.json({msg: `Game session of id ${req.params.gameId} deleted`});
 }))
 
 module.exports = router;

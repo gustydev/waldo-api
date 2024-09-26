@@ -14,7 +14,10 @@ const MapSchema = new Schema({
 })
 
 MapSchema.virtual('imageUrl').get(function() {
-    return `images/maps/${this._id}`;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    return `${baseUrl}/images/maps/${this._id}.jpeg`;
 })
+
+MapSchema.set('toJSON', { virtuals: true})
 
 module.exports = mongoose.model('Map', MapSchema)

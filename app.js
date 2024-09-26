@@ -7,45 +7,24 @@ const cors = require('cors');
 const mapRouter = require('./routes/map')
 const gameRouter = require('./routes/game')
 
-const Character = require('./models/character')
-const Map = require('./models/map');
-const Game = require('./models/game')
-const Score = require('./models/score')
-
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', 'false')
 
 const mongoDB = process.env.MONGODB_URI;
 
 main()
-.then(async () => {
-  // await Game.deleteMany();
-  // await Score.deleteMany();
-  // await Map.deleteOne({name: 'PXLCON (Jimmy Something)'});
-
-  // const chars = [
-  //   {character: await Character.findOne({name: 'Waldo'}), coordinates: {x: 760, y: 200}},
-  //   {character: await new Character({name: 'Magikarp'}).save(), coordinates: {x: 910, y: 694}},
-  //   {character: await new Character({name: 'Goku'}).save(), coordinates: {x: 171, y: 143}},
-  //   {character: await new Character({name: 'Meat Boy'}).save(), coordinates: {x: 1100, y: 120}},
-  //   {character: await new Character({name: 'Sonic'}).save(), coordinates: {x: 931, y: 834}},
-  //   {character: await new Character({name: 'Sniper'}).save(), coordinates: {x: 1113, y: 284}},
-  // ]
-
-  // const map = new Map({
-  //   name: 'PXLCON (Jimmy Something)',
-  //   characters: chars
-  // })
-  // map.save();
-  // console.log(map)
-})
 .catch((err) => console.log(err));
 
 async function main() {
   await mongoose.connect(mongoDB);
 }
 
-app.use(cors()); // Later change to only allow the game website!!
+const corsOptions = {
+  origin: (process.env.NODE_ENV === 'production') ? process.env.FRONTEND_URL : '*'
+  // In production, use the front-end URL; in development, accept any
+}
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

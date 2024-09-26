@@ -6,7 +6,10 @@ const CharacterSchema = new Schema({
 })
 
 CharacterSchema.virtual('imageUrl').get(function() {
-    return `images/characters/${this._id}`;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    return `${baseUrl}/images/characters/${this._id}.jpeg`;
 })
+
+CharacterSchema.set('toJSON', { virtuals: true})
 
 module.exports = mongoose.model('Character', CharacterSchema);
