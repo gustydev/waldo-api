@@ -19,7 +19,8 @@ const mongoDB = process.env.MONGODB_URI;
 
 main()
 .then(async () => {
-  await Game.deleteMany();
+  // await Game.deleteMany();
+  // await Score.deleteMany();
   // await Map.deleteOne({name: 'PXLCON (Jimmy Something)'});
 
   // const chars = [
@@ -60,15 +61,13 @@ app.use(function(req, res, next) {
 
 // Global error handler
 app.use((err, req, res, next) => {
+  console.log(err)
   const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
+  const msg = err.message || 'Internal Server Error';
 
   res.status(statusCode).json({
-      errors: {
-          messages: [message],
-          statusCode,
-          stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-      }
+    msg,
+    statusCode
   });
 });
 

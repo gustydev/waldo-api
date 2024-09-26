@@ -12,15 +12,19 @@ router.post('/new/:mapId', asyncHandler(async function (req, res, next) {
     res.json(newGame)
 }))
 
-router.get('/:gameId', asyncHandler(async function(req, res, next) {
-    const game = await Game.findById(req.params.gameId).populate('characters.character');
-    if (!game || game.started) {
-        res.status(400).json({msg: 'Game session not found or expired! Please start a new game.'})
-        return;
-    }
+router.get('/:gameId', async function(req, res, next) {
+    try {
+        const game = await Game.findById(req.params.gameId).populate('characters.character');
+        if (game.started) {
+            return res.status(400).json({msg: 'Game session expired! Please start a new game.'})
+        }
 
-    res.json(game);
-}))
+        res.json(game);
+    } catch (err) {
+        const status = 404
+        res.status(status).json({msg: 'Game not found', statusCode: status})
+    }
+})
 
 router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
     // to prevent cheating when refresh page, set variable "started" to true so that player can't reset timer

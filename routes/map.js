@@ -17,9 +17,12 @@ router.get('/:mapId', asyncHandler(async function(req, res, next) {
   const populate = (leaderboard ? 'leaderboard ' : '') + 'characters.character';
   const select = (!leaderboard ? '-leaderboard': '');
 
-  const map = await Map.findById(req.params.mapId).populate(populate).select(select)
-
-  res.json(map)
+  try {
+    const map = await Map.findById(req.params.mapId).populate(populate).select(select)
+    res.json(map)
+  } catch (error) {
+    return res.status(404).json({msg: 'Map not found', statusCode: 404})
+  }
 }))
 
 router.post('/:mapId/score', asyncHandler(async function (req, res, next) {
