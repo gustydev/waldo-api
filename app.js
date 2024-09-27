@@ -4,6 +4,13 @@ const app = express();
 const createError = require('http-errors');
 const cors = require('cors');
 
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100
+});
+app.use(limiter);
+
 const mapRouter = require('./routes/map')
 const gameRouter = require('./routes/game')
 
@@ -13,6 +20,9 @@ mongoose.set('strictQuery', 'false')
 const mongoDB = process.env.MONGODB_URI;
 
 main()
+.then(async() => {
+  // manual queries go here
+})
 .catch((err) => console.log(err));
 
 async function main() {
@@ -20,8 +30,10 @@ async function main() {
 }
 
 const corsOptions = {
-  origin: (process.env.NODE_ENV === 'production') ? process.env.FRONTEND_URL : '*'
   // In production, use the front-end URL; in development, accept any
+  origin: (process.env.NODE_ENV === 'production') ? process.env.FRONTEND_URL : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
 }
 
 app.use(cors(corsOptions));

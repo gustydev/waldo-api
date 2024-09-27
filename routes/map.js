@@ -31,7 +31,12 @@ router.get('/:mapId', asyncHandler(async function(req, res, next) {
 
 router.post('/:mapId/score', asyncHandler(async function (req, res, next) {
   const mapId = req.params.mapId;
-  const { name, time } = req.body;
+  const { name, time, password } = req.body;
+
+  if (password !== process.env.SECRET_PASS) {
+    return res.status(400).json({msg: 'Not Authorized', statusCode: 400});
+    // prevents illegal scores from being submitted
+  }
 
   const map = await Map.findById(mapId)
 

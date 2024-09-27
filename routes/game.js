@@ -6,7 +6,7 @@ const Game = require('../models/game');
 const Map = require('../models/map');
 
 router.post('/new/:mapId', asyncHandler(async function (req, res, next) {
-    const gameMap = await Map.findById(req.params.mapId)
+    const gameMap = await Map.findById(req.params.mapId).lean();
     const newGame = await new Game({map: gameMap}).save()
 
     res.json(newGame)
@@ -38,7 +38,7 @@ router.get('/:gameId/start', asyncHandler(async function(req, res, next) {
     res.json({msg: `Game started! Expires after 3 hours, or upon leaving/refreshing the page`})
 }))
 
-router.post('/:gameId', asyncHandler(async function(req, res, next) {
+router.post('/:gameId/guess', asyncHandler(async function(req, res, next) {
     const { coordinates, option } = req.body;
 
     try {
@@ -71,7 +71,7 @@ router.post('/:gameId', asyncHandler(async function(req, res, next) {
             res.json({msg: `${char.character.name} is not there! Try again.`, found: false})
         }
     } catch (err) {
-        return res.status(400).json({msg: 'Game session expired! Please start a new game.', statusCode: 400})
+        return res.status(400).json({msg: 'Invalid option, or game session expired.', statusCode: 400})
     }
 }))
 
