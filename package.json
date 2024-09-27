@@ -6,6 +6,7 @@
     "express-async-handler": "^1.2.0",
     "express-rate-limit": "^7.4.0",
     "express-validator": "^7.2.0",
+    "marked": "^14.1.2",
     "mongoose": "^8.6.2"
   },
   "name": "waldo-api",

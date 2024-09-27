@@ -3,6 +3,9 @@ const express = require('express');
 const app = express();
 const createError = require('http-errors');
 const cors = require('cors');
+const path = require('path')
+const fs = require('fs')
+const { marked } = require('marked');
 
 const RateLimit = require("express-rate-limit");
 const limiter = RateLimit({
@@ -47,6 +50,18 @@ app.use(express.static('public'))
 
 app.use('/api/map', mapRouter)
 app.use('/api/game', gameRouter)
+
+app.get('/', (req, res) => {
+  const readme = path.join(__dirname, 'README.md')
+
+  fs.readFile(readme, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).send('Error reading README.md')
+    }
+
+    res.send(marked(data));
+  })
+})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
