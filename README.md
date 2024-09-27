@@ -2,7 +2,7 @@
 
 This is the **Waldo API**, a RESTful API backend for a "Where's Waldo" type game where players search for characters on maps. The API supports map data, character information, game sessions and leaderboards for maps.
 
-To view the repository of the front-end React app that uses the API, [click here!](https://github.com/gustydev/find-them-all/)
+To view the front-end React app that uses the API, [click here!](https://github.com/gustydev/find-them-all/)
 
 ## Features
 
@@ -32,7 +32,7 @@ To view the repository of the front-end React app that uses the API, [click here
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/username/waldo-api.git
+   git clone https://github.com/gustydev/waldo-api.git
    cd waldo-api
    ```
 
@@ -47,7 +47,7 @@ To view the repository of the front-end React app that uses the API, [click here
    PORT=3000
    MONGO_URI=your_mongo_db_connection_string
    BASE_URL=http://localhost:3000
-   SECRET_PASS=secret_password
+   SECRET_PASS=secret_password # Must match the password in the front-end app
    ```
 
 4. Start the server:
