@@ -9,7 +9,10 @@ const limiter = RateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100
 });
-app.use(limiter);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(limiter);
+}
 
 const mapRouter = require('./routes/map')
 const gameRouter = require('./routes/game')

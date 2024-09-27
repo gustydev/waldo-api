@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler')
+const { body, validationResult } = require('express-validator');
 
 const Map = require('../models/map');
 const Score = require('../models/score')
@@ -29,30 +30,38 @@ router.get('/:mapId', asyncHandler(async function(req, res, next) {
   }
 }))
 
-router.post('/:mapId/score', asyncHandler(async function (req, res, next) {
-  const mapId = req.params.mapId;
-  const { name, time, password } = req.body;
+router.post('/:mapId/score', [
+  body('name').optional().trim().isLength({min: 2, max: 30}).withMessage('Name must be between 2 and 30 characters'),
+  body('time').isNumeric().withMessage('Time must be numeric'),
+  body('password').equals(process.env.SECRET_PASS).withMessage('Unauthorized'),
 
-  if (password !== process.env.SECRET_PASS) {
-    return res.status(400).json({msg: 'Not Authorized', statusCode: 400});
-    // prevents illegal scores from being submitted
-  }
+  asyncHandler(async function (req, res, next) {
+    const errors = validationResult(req);
 
-  const map = await Map.findById(mapId)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({msg: errors.array()[0].msg, statusCode: 400})
+    }
 
-  const score = new Score({
-    name: name.length ? name : undefined, // Set name passed by user, or undefined (defaults to anonymous in such case)
-    time: time,
-    date: new Date(),
-    map: map
+    const mapId = req.params.mapId;
+    const { name, time } = req.body;
+  
+    const map = await Map.findById(mapId)
+  
+    const score = new Score({
+      name: name.length ? name : undefined, // Set name passed by user, or undefined (defaults to anonymous in such case)
+      time: time,
+      date: new Date(),
+      map: map
+    })
+  
+    await score.save();
+    await Map.findByIdAndUpdate(mapId, {
+      $push: { leaderboard: score }
+    })
+  
+    res.json({msg: 'Score submitted!'})
   })
+]);
 
-  await score.save();
-  await Map.findByIdAndUpdate(mapId, {
-    $push: { leaderboard: score }
-  })
-
-  res.json({msg: 'Score submitted!', score, map})
-}))
 
 module.exports = router;
